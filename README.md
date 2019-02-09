@@ -9,7 +9,7 @@ $ npm i -g yt-upload
 # Getting Started
 Follow the (Turn on the YouTube Data API, only a to g) steps shown here **https://developers.google.com/youtube/v3/quickstart/nodejs**
 
-Move the downloaded file to (C:\Users\<yourpcusername>) and rename it **client_secret.json**.
+Move the downloaded file to **(C:\Users\<*yourpcusername*>)** and rename it **client_secret.json**.
 
 # Usage
 ```console
