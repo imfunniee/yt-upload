@@ -15,14 +15,6 @@ Move the downloaded file to (C:\Users\<yourpcusername>) and rename it **client_s
 ```console
 $ yt-upload -u
 ```
-**Path** path to the video you want to upload (path/to/video.mp4)
-
-**Title** title of the video
-
-**Description** Description of the video
-
-**Visiblity** video visiblity (public/private/unlisted)
-
 
 > If you are using this for the first time it will ask you to authorize your application, just follow the onscreen authorization flow.
 
