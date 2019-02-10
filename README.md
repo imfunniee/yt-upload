@@ -24,12 +24,27 @@ To upload videos
 $ yt-upload -u or --upload
 ```
 
+To update video
+```console
+$ yt-upload -c or --change
+```
+
+To get subscriber count
+```console
+$ yt-upload -s or --subscribers
+```
+
+To search for a video
+```console
+$ yt-upload -q or --searchvideo
+```
+
 To check version
 ```console
 $ yt-upload -v or --version
 ```
 
-For Help
+Help
 ```console
 $ yt-upload -h or --help
 ```
