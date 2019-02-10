@@ -41,7 +41,7 @@ $ yt-upload -h or --help
 
 ✔️ get subscriptions
 
-✔️ get videos from a channel
+✔️ search for video
 
 # Upcoming Features 
 
@@ -50,8 +50,6 @@ $ yt-upload -h or --help
 ❌ like video
 
 ❌ change thumbnail of a video
-
-❌ search for video
 
 ❌ subscribe or unsubscribe to a channel
 
