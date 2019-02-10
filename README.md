@@ -13,7 +13,7 @@ Move the downloaded file to **(C:\Users\<*yourpcusername*>)** and rename it **cl
 
 # Usage
 ```console
-$ yt-upload -u
+$ yt-upload <command>
 ```
 
 > If you are using this for the first time it will ask you to authorize your application, just follow the onscreen authorization flow.
