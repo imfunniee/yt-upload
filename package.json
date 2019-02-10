@@ -3,7 +3,19 @@
   "version": "1.0.0",
   "description": "a node package to upload videos on youtube from your terminal",
   "repository": "https://github.com/imfunniee/yt-upload",
-  "keywords": ["youtube","upload","terminal","cli","yt-upload","npm","cli-app","chalk","async","commander","google"],
+  "keywords": [
+    "youtube",
+    "upload",
+    "terminal",
+    "cli",
+    "yt-upload",
+    "npm",
+    "cli-app",
+    "chalk",
+    "async",
+    "commander",
+    "google"
+  ],
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

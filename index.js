@@ -2,7 +2,6 @@
 
 var fs = require('fs');
 var readline = require('readline');
-var util = require('util');
 var {google} = require('googleapis');
 var OAuth2 = google.auth.OAuth2;
 var program = require('commander');
@@ -21,10 +20,12 @@ const rl = readline.createInterface({
 program
   .version('1.0.0', '-v, --version')
   .option('-u, --upload', 'upload video')
+  .option('-c, --change', 'update video')
+  .option('-q, --searchvideo', 'search for video')
+  .option('-s, --subscribers', 'get subscribers of a channel')
   .parse(process.argv);
 
 if(program.upload) {
-
     var data = [];
 
     async.series([
@@ -53,9 +54,9 @@ if(program.upload) {
             });
         },
         function (callback) {
-            rl.question('\nChoose a visiblity type for video (public,private or unlisted) : ', function (args) {
+            rl.question('\nChoose a privacy status for video (public,private or unlisted) : ', function (args) {
                 if(!args){
-                    console.log(warn("\nWarning : visiblity can't be empty"));
+                    console.log(warn("\nWarning : privacy status can't be empty"));
                     rl.clearLine();
                 }
                 data.push(args.toLowerCase());
@@ -73,7 +74,7 @@ if(program.upload) {
         Video Path => ${data[0]}
         Video Title => ${data[1]}
         Video Description => ${data[2]}
-        Video Visiblity => ${data[3]} 
+        Video privacy status => ${data[3]} 
         \nIs this ok?  (yes/no) `, (answer) => {
             if (answer.match(/^y(es)?$/i)){
                 sure(data);
@@ -93,7 +94,190 @@ if(program.upload) {
     }
     });
 
-}else {
+}else if(program.change){
+  var data = [];
+  var notupdateddata = [];
+    async.series([
+        function (callback) {
+            rl.question('Enter video id to update : ', function (args) {
+                if(!args){
+                    console.log(warn("Warning : video id can't be empty"));
+                    rl.clearLine();
+                }else{
+                  data.push(args);
+                  function videosListById(auth, requestData) {
+                    var service = google.youtube('v3');
+                    var parameters = removeEmptyParameters(requestData['params']);
+                    parameters['auth'] = auth;
+                    service.videos.list(parameters, function(err, response) {
+                      if (err) {
+                        console.log('The API returned an error: ' + err);
+                        return;
+                      }
+                      notupdateddata.push(response.data.items[0].snippet.title);
+                      notupdateddata.push(response.data.items[0].snippet.description);
+                      notupdateddata.push(response.data.items[0].status.privacyStatus);
+                      console.log("\nvideo title : " + notupdateddata[0]);
+                      rl.question('\nIs this the video you want to update? (yes/no) ', (answer) => {
+                        if (answer.match(/^y(es)?$/i)){
+                            continueasking();
+                        }else{
+                            rl.close();
+                        }
+                    });
+                    });
+                  }
+                  fs.readFile('client_secret.json', function processClientSecrets(err, content) {
+                    if (err) {
+                      console.log(error('Error loading client secret file: ' + err));
+                      return;
+                    }
+                    authorize(JSON.parse(content), {'params': {'id': data[0],
+                    'part': 'snippet,contentDetails,statistics,status'}}, videosListById);
+                  });
+                }
+                callback();
+            });
+        }]);
+    function continueasking(){
+        async.series([
+           function (callback) {
+            rl.question("\nEnter video Title (leave empty if you don't want to update this) : ", function (args) {
+                data.push(args);
+                callback();
+            });
+        }, function (callback) {
+            rl.question("Enter video Description (leave empty if you don't want to update this) : ", function (args) {
+                data.push(args);
+                callback();
+            });
+        },
+        function (callback) {
+            rl.question("Choose a privacy status for video (public,private or unlisted) (leave empty if you don't want to update this) : ", function (args) {
+                data.push(args.toLowerCase());
+                callback();
+            });
+        },
+    ], function () {
+      if(!data[0]){
+          console.error(error("\nError : video id can't be empty, try again :("));
+          rl.close();
+          return;
+      }
+        if(!data[1] && !data[2] && !data[3]) {
+            console.error(error("\nError : looks like you don't want anything updated :("));
+            rl.close();
+            return;
+        }
+
+        if(!data[1]){
+          data[1] = notupdateddata[0];
+        }
+        if(!data[2]){
+          data[2] = notupdateddata[1];
+        }
+        if(!data[3]){
+          data[3] = notupdateddata[2];
+        }
+
+        rl.question(`
+        Video id => ${data[0]}
+        Video title => ${data[1]}
+        Video description => ${data[2]}
+        Video privacy status => ${data[3]} 
+        \nIs this ok?  (yes/no) `, (answer) => {
+            if (answer.match(/^y(es)?$/i)){
+                sure(data);
+            }else{
+                rl.close();
+            }
+        });
+        function sure(){
+        rl.question('\nAre you sure you want to continue updating video? (yes/no) ', (answer) => {
+            if (answer.match(/^y(es)?$/i)){
+                updatevideo(data);
+                rl.close();
+            }else{
+                rl.close();
+            }
+        });
+    }
+    });
+  }
+}else if(program.subscribers){
+            rl.question('Enter username : ', function (args) {
+                if(!args){
+                    console.log(warn("Warning : username can't be empty"));
+                    rl.close();
+                }else{
+                  function channelsListByUsername(auth, requestData) {
+                    var service = google.youtube('v3');
+                    var parameters = removeEmptyParameters(requestData['params']);
+                    parameters['auth'] = auth;
+                    service.channels.list(parameters, function(err, response) {
+                      if (err) {
+                        console.log('The API returned an error: ' + err);
+                        return;
+                      }
+                      if(response.data.items[0] == undefined){
+                        console.log(done("\nuser not found"));
+                        process.exit(1);
+                        return;
+                      }
+                      console.log(done("\n" + response.data.items[0].snippet.title + " currently has " + response.data.items[0].statistics.subscriberCount + " subscribers"));
+                      process.exit(1);
+                    });
+                  }
+                  fs.readFile('client_secret.json', function processClientSecrets(err, content) {
+                    if (err) {
+                      console.log(error('Error loading client secret file: ' + err));
+                      return;
+                    }
+                    authorize(JSON.parse(content), {'params': {'forUsername': args,
+                   'part': 'snippet,statistics'}}, channelsListByUsername);
+                  });
+                }
+              })
+}else if(program.searchvideo){
+  rl.question('Enter search query : ', function (args) {
+      if(!args){
+          console.log(warn("Warning : query can't be empty"));
+          rl.close();
+      }else{
+        function searchListByKeyword(auth, requestData) {
+          var service = google.youtube('v3');
+          var parameters = removeEmptyParameters(requestData['params']);
+          parameters['auth'] = auth;
+          service.search.list(parameters, function(err, response) {
+            if (err) {
+              console.log('The API returned an error: ' + err);
+              return;
+            }
+            if(response.data.items[0] == undefined){
+              console.log(done("\nnothing found"));
+              process.exit(1);
+              return;
+            }
+            for(i = 0; i < response.data.items.length;i++){
+                console.log(`\n${i}) `+response.data.items[i].snippet.title + ` - (https://youtube.com/watch?v=${response.data.items[i].id.videoId})`);
+            }
+            process.exit(1);
+          });
+        }
+        fs.readFile('client_secret.json', function processClientSecrets(err, content) {
+          if (err) {
+            console.log(error('Error loading client secret file: ' + err));
+            return;
+          }
+          authorize(JSON.parse(content), {'params': {'maxResults': '50',
+          'part': 'snippet',
+          'q': args,
+          'type': 'video'}}, searchListByKeyword);
+        });
+      }
+    })
+}else{
+  console.log("use -h for help");
   process.exit(1);
 }
 
@@ -115,6 +299,23 @@ if(program.upload) {
         }, 'mediaFilename': `${data[0]}`}, videosInsert);
     });
   }
+
+  function updatevideo(data) {
+    fs.readFile('client_secret.json', function processClientSecrets(err, content) {
+        if (err) {
+          console.log(error('Error loading client secret file: ' + err));
+          return;
+        }
+        authorize(JSON.parse(content), {'params': {'part': 'snippet,status'}, 'properties': {'id': data[0],
+        'snippet.categoryId': '22',
+        'snippet.defaultLanguage': '',
+        'snippet.tags[]': '',
+        'snippet.description': data[2],
+        'snippet.title': data[1],
+        'status.privacyStatus': data[3],
+      }}, videosUpdate);
+     });
+   }
 
 var SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 var TOKEN_DIR = './credentials/';
@@ -168,8 +369,14 @@ function storeToken(token) {
       throw err;
     }
   }
-  fs.writeFile(TOKEN_PATH, JSON.stringify(token));
-  console.log('\nToken stored to ' + TOKEN_PATH);
+  fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => { 
+    if(err){
+      console.log(error("\nError Storing Token!"));
+      return;
+    }else {
+      console.log('\nToken stored to ' + TOKEN_PATH);
+    }
+   });
 }
 
 function removeEmptyParameters(params) {
@@ -195,7 +402,6 @@ function createResource(properties) {
     }
   }
   for (var p in normalizedProps) {
-    // Leave properties that don't have values out of inserted resource.
     if (normalizedProps.hasOwnProperty(p) && normalizedProps[p]) {
       var propArray = p.split('.');
       var ref = resource;
@@ -229,5 +435,19 @@ function videosInsert(auth, requestData) {
         console.log(done("\nvideo uploaded"));
     }
     process.exit();
+  });
+}
+
+function videosUpdate(auth, requestData) {
+  var service = google.youtube('v3');
+  var parameters = removeEmptyParameters(requestData['params']);
+  parameters['auth'] = auth;
+  parameters['resource'] = createResource(requestData['properties']);
+  service.videos.update(parameters, function(err, response) {
+    if (err) {
+      console.log(error('\nError updating video : ' + err));
+      return;
+    }
+    console.log(done("\nvideo updated"));
   });
 }
