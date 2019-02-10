@@ -39,7 +39,7 @@ $ yt-upload -h or --help
 
 ✔️ update a video
 
-✔️ get subscriptions
+✔️ get subscribers
 
 ✔️ search for video
 
