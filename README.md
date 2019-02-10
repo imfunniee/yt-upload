@@ -37,10 +37,13 @@ $ yt-upload -h or --help
 # Features
 ✔️ upload video
 
-# Upcoming Features
-❌ update a video
+✔️ update a video
 
-❌ get videos from a channel
+✔️ get subscriptions
+
+✔️ get videos from a channel
+
+# Upcoming Features 
 
 ❌ get or comment on video
 
@@ -50,8 +53,6 @@ $ yt-upload -h or --help
 
 ❌ search for video
 
-❌ get subscriptions
-
 ❌ subscribe or unsubscribe to a channel
 
-❌ play video in terminal (only voice)
+❌ play video in terminal (maybe)
