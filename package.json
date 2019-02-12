@@ -1,6 +1,6 @@
 {
   "name": "yt-upload",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "a node package to upload videos on youtube from your terminal",
   "repository": "https://github.com/imfunniee/yt-upload",
   "keywords": [

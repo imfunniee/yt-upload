@@ -18,11 +18,12 @@ const rl = readline.createInterface({
 });
 
 program
-  .version('1.0.0', '-v, --version')
+  .version('1.0.2', '-v, --version')
   .option('-u, --upload', 'upload video')
   .option('-c, --change', 'update video')
   .option('-q, --searchvideo', 'search for video')
   .option('-s, --subscribers', 'get subscribers of a channel')
+  .option('-r, --replies', 'get top comments on a video')
   .parse(process.argv);
 
 if(program.upload) {
@@ -276,6 +277,36 @@ if(program.upload) {
         });
       }
     })
+}else if(program.replies){
+  rl.question('Enter video id to get comments : ', function (args) {
+      if(!args){
+          console.log(warn("Warning : video id can't be empty"));
+          rl.close();
+      }else{
+        function commentThreadsListByVideoId(auth, requestData) {
+          var service = google.youtube('v3');
+          var parameters = removeEmptyParameters(requestData['params']);
+          parameters['auth'] = auth;
+          service.commentThreads.list(parameters, function(err, response) {
+            if (err) {
+              console.log(error('The API returned an error: ' + err));
+              return;
+            }
+            for(i=0;i < response.data.items.length;i++){
+            console.log(working("\n"+response.data.items[i].snippet.topLevelComment.snippet.authorDisplayName) +"\n"+ response.data.items[i].snippet.topLevelComment.snippet.textDisplay);
+            }
+          });
+        }
+        fs.readFile('client_secret.json', function processClientSecrets(err, content) {
+          if (err) {
+            console.log(error('Error loading client secret file: ' + err));
+            return;
+          }
+          authorize(JSON.parse(content), {'params': {'part': 'snippet','order': 'relevance','textFormat':'plainText',
+            'videoId': args}}, commentThreadsListByVideoId);
+        });
+      }
+    })
 }else{
   console.log("use -h for help");
   process.exit(1);
@@ -288,10 +319,10 @@ if(program.upload) {
          return;
        }
          authorize(JSON.parse(content), {'params': {'part': 'snippet,status'}, 'properties': {'snippet.categoryId': '22',
-                      'snippet.defaultLanguage': '',
-                     'snippet.description': `${data[2]}`,
-                     'snippet.tags[]': '',
-                     'snippet.title': `${data[1]}`,
+                    'snippet.defaultLanguage': '',
+                    'snippet.description': `${data[2]}`,
+                    'snippet.tags[]': '',
+                    'snippet.title': `${data[1]}`,
                     'status.embeddable': '',
                     'status.license': '',
                     'status.privacyStatus': `${data[3]}`,
@@ -342,12 +373,12 @@ function getNewToken(oauth2Client, requestData, callback) {
     access_type: 'offline',
     scope: SCOPES
   });
-  console.log('Authorize this app by visiting this url: ', authUrl);
+  console.log('Authorize your project by visiting this url: ', authUrl);
   var rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
   });
-  rl.question('Enter the code from that page here: ', function(code) {
+  rl.question('Enter the code here: ', function(code) {
     rl.close();
     oauth2Client.getToken(code, function(err, token) {
       if (err) {
