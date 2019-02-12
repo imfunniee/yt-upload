@@ -39,6 +39,11 @@ To search for a video
 $ yt-upload -q or --searchvideo
 ```
 
+To get comments on a video
+```console
+$ yt-upload -r or --replies
+```
+
 To check version
 ```console
 $ yt-upload -v or --version
@@ -58,13 +63,11 @@ $ yt-upload -h or --help
 
 ✔️ search for video
 
+✔️ get comments on video
+
 # Upcoming Features 
 
-❌ get or comment on video
-
 ❌ like video
-
-❌ change thumbnail of a video
 
 ❌ subscribe or unsubscribe to a channel
 
