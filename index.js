@@ -18,7 +18,7 @@ const rl = readline.createInterface({
 });
 
 program
-  .version('1.0.2', '-v, --version')
+  .version('1.0.3', '-v, --version')
   .option('-u, --upload', 'upload video')
   .option('-c, --change', 'update video')
   .option('-q, --searchvideo', 'search for video')
