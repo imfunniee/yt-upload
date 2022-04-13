@@ -25,7 +25,7 @@
   "preferGlobal": true,
   "bin": "./index.js",
   "dependencies": {
-    "async": "^2.6.1",
+    "async": "^3.2.2",
     "chalk": "^2.4.2",
     "commander": "^2.19.0",
     "google-auth-library": "^3.0.1",
